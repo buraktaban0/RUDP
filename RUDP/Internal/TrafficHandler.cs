@@ -121,7 +121,7 @@ namespace RUDP.Internal
 		{
 			double random = new Random().NextDouble();
 
-			if (random < 0.5) // Simulate packet loss
+			if (random < 0.4) // Simulate packet loss
 			{
 				return;
 			}
