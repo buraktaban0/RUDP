@@ -13,10 +13,12 @@ namespace RUDP.Server
 
 		void OnBindSuccessful();
 
-		
+
 		void OnClientConnected(UDPClientHandler client);
 
 		void OnClientDisconnected(UDPClientHandler client);
+
+		void OnClientReconnected(UDPClientHandler oldClient, UDPClientHandler newClient);
 
 		void OnClientPacketReceived(Packet packet, UDPClientHandler client);
 

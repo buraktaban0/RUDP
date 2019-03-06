@@ -24,7 +24,7 @@ namespace TestServerConsole
 
 			server = new UDPServer(program);
 			server.Start(localEP);
-			
+
 
 			while (true)
 			{
@@ -53,10 +53,16 @@ namespace TestServerConsole
 			throw new NotImplementedException();
 		}
 
+		public void OnClientReconnected(UDPClientHandler oldClient, UDPClientHandler newClient)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void OnClientPacketReceived(Packet packet, UDPClientHandler client)
 		{
 			throw new NotImplementedException();
 		}
+
 
 		public void OnPacketReceived(Packet packet)
 		{

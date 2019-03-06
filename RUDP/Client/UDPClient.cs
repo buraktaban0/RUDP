@@ -23,6 +23,10 @@ namespace RUDP.Client
 
 		private IUDPClient eventHandler;
 
+		private ushort ServerKey { get; set; }
+		private ushort ClientKey { get; set; }
+		private ushort CombinedKey { get { return (ushort)(ServerKey ^ ClientKey); } }
+
 		public UDPClient(IUDPClient eventHandler)
 		{
 			this.eventHandler = eventHandler;

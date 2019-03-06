@@ -35,12 +35,14 @@ namespace RUDP.Packets
 
 		public Type type { get; set; }
 		public Reliability reliability { get; set; }
-
-		public ushort Id { get; set; }
-
+		
 		public string Text { get; set; }
 
 		#region Internals
+
+		internal ushort Id { get; set; }
+
+		internal ushort Key { get; set; }
 
 		internal long timeout;
 
@@ -68,8 +70,9 @@ namespace RUDP.Packets
 		{
 			byte relAndType = Utility.PackBytes((byte)reliability, (byte)type);
 			byte[] idBytes = Utility.ToLittleEndian(Id, 2);
+			byte[] saltBytes = Utility.ToLittleEndian(Key, 2);
 			byte[] textBytes = Encoding.UTF8.GetBytes(Text);
-			byte[] bytes = Utility.Combine(new byte[] { relAndType }, idBytes, textBytes);
+			byte[] bytes = Utility.Combine(new byte[] { relAndType }, idBytes, saltBytes, textBytes);
 
 			return bytes;
 		}
@@ -90,7 +93,8 @@ namespace RUDP.Packets
 			packet.reliability = (Reliability)tuple.Item1;
 			packet.type = (Type)tuple.Item2;
 			packet.Id = Utility.FromLittleEndianShort(Utility.SubArray(bytes, 1, 2));
-			packet.Text = Encoding.UTF8.GetString(Utility.SubArray(bytes, 3, bytes.Length - 3));
+			packet.Key = Utility.FromLittleEndianShort(Utility.SubArray(bytes, 3, 2));
+			packet.Text = Encoding.UTF8.GetString(Utility.SubArray(bytes, 5, bytes.Length - 5));
 			return packet;
 		}
 
