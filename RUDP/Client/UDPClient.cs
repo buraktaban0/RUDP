@@ -19,6 +19,8 @@ namespace RUDP.Client
 			}
 		}
 
+		public IPEndPoint ServerEP { get; private set; }
+
 		private TrafficHandler trafficHandler;
 
 		private IUDPClient eventHandler;
@@ -33,9 +35,10 @@ namespace RUDP.Client
 			trafficHandler = new TrafficHandler(this);
 		}
 
-		public void Start(IPEndPoint localEP)
+		public void Start(IPEndPoint localEP, IPEndPoint remoteEP)
 		{
 			trafficHandler.Start(localEP);
+			ServerEP = remoteEP;
 		}
 
 
@@ -43,6 +46,18 @@ namespace RUDP.Client
 		{
 			trafficHandler.Send(text, remoteEP, true);
 		}
+
+
+		public void Send(Packet packet)
+		{
+			trafficHandler.Send(packet, ServerEP);
+		}
+
+		public void SendReliable(Packet packet)
+		{
+			trafficHandler.SendReliable(packet, ServerEP);
+		}
+
 
 
 		public void OnBindFailed(Exception ex)

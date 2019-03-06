@@ -81,6 +81,7 @@ namespace RUDP.Packets
 		{
 			Packet packet = PacketFactory.RecyclePacket();
 			packet.Text = text;
+			packet.type = Type.Event;
 			return packet;
 		}
 

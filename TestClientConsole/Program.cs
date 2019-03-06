@@ -24,7 +24,7 @@ namespace TestClientConsole
 			
 
 			client = new UDPClient(program);
-			client.Start(localEP);
+			client.Start(localEP, remoteEP);
 
 			while (true)
 			{

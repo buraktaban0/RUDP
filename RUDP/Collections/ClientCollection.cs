@@ -34,6 +34,16 @@ namespace RUDP.Collections
 			return null;
 		}
 
+		public UDPClientHandler Get(IPEndPoint remoteEP)
+		{
+			UDPClientHandler client;
+			if (ipsToClients.TryGetValue(remoteEP, out client))
+			{
+				return client;
+			}
+			return null;
+		}
+
 
 		public bool ContainsId(int id)
 		{

@@ -24,9 +24,11 @@ namespace RUDP.Server
 		private TrafficHandler trafficHandler;
 		private UDPServer server;
 
-		internal UDPClientHandler(int id, IPEndPoint remoteEP, UDPServer server, TrafficHandler trafficHandler)
+		internal UDPClientHandler(int id, ushort serverKey, ushort clientKey, IPEndPoint remoteEP, UDPServer server, TrafficHandler trafficHandler)
 		{
 			this.Id = id;
+			this.ServerKey = serverKey;
+			this.ClientKey = clientKey;
 			this.RemoteEP = remoteEP;
 			this.server = server;
 			this.trafficHandler = trafficHandler;

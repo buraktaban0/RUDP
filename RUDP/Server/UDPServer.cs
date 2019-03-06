@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using RUDP.Collections;
+using RUDP.Commons;
 using RUDP.Internal;
 using RUDP.Packets;
 
@@ -24,6 +27,7 @@ namespace RUDP.Server
 
 		private IUDPServer eventHandler;
 
+		private ClientCollection clients;
 
 		private Dictionary<Packet.Type, Action<Packet>> receivedCallbacks;
 
@@ -63,22 +67,52 @@ namespace RUDP.Server
 
 		private void OnConnectionRequestReceived(Packet packet)
 		{
+			Monitor.Enter(clients);
 
+			IPEndPoint remoteEP = Address.DuplicateEndPoint(packet.IPEndPoint);
+			int id = clients.GetFirstAvailableId();
+
+			if (id < 0 || clients.ContainsEndPoint(remoteEP))
+			{
+				Packet rejectedPacket = PacketFactory.GetConnectionRejected();
+				trafficHandler.SendReliable(rejectedPacket, remoteEP);
+			}
+
+			ushort serverKey = Utility.GetRandomUShort();
+
+			UDPClientHandler client =
+				new UDPClientHandler(id, serverKey, packet.Key, remoteEP, this, trafficHandler);
+
+			clients.AddTo(client, id);
+
+			Monitor.Exit(clients);
+
+			Packet challengePacket = PacketFactory.GetChallenge(id, serverKey);
+			trafficHandler.SendReliable(challengePacket, remoteEP);
 		}
 
 		private void OnChallengeResponseReceived(Packet packet)
 		{
+			UDPClientHandler client = clients.Get(packet.IPEndPoint);
+			if (client == null)
+			{
 
+			}
+			else
+			{
+
+			}
 		}
 
 		private void OnEventReceived(Packet packet)
 		{
-
+			eventHandler.OnPacketReceived(packet);
 		}
 
 		private void OnUnknownPacketReceived(Packet packet)
 		{
-
+			Console.WriteLine("OnUnknownPacketReceived -> " + packet.type);
+			// TODO: Discard?
 		}
 
 

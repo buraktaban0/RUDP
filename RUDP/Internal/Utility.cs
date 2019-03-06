@@ -166,6 +166,13 @@ namespace RUDP.Internal
 			return FromLittleEndian(bytes);
 		}
 
+		public static ushort GetRandomUShort()
+		{
+			byte[] bytes = new byte[2];
+			new Random().NextBytes(bytes);
+			return FromLittleEndianShort(bytes);
+		}
+
 
 		public static byte PackBytes(byte a, byte b)
 		{

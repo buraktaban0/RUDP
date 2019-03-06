@@ -46,6 +46,7 @@
     <Compile Include="Client\UDPClient.cs" />
     <Compile Include="Collections\BlockingQueue.cs" />
     <Compile Include="Collections\BoundedList.cs" />
+    <Compile Include="Collections\ClientCollection.cs" />
     <Compile Include="Commons\Address.cs" />
     <Compile Include="Internal\ReliableMonitor.cs" />
     <Compile Include="Internal\Utility.cs" />
