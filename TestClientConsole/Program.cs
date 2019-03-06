@@ -21,6 +21,7 @@ namespace TestClientConsole
 			IPEndPoint remoteEP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3000);
 
 			Console.WriteLine("CLIENT - " + localEP);
+			
 
 			client = new UDPClient(program);
 			client.Start(localEP);

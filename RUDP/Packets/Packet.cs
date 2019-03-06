@@ -36,7 +36,7 @@ namespace RUDP.Packets
 		public Type type { get; set; }
 		public Reliability reliability { get; set; }
 
-		public ulong UniqueID { get; set; }
+		public ushort Id { get; set; }
 
 		public string Text { get; set; }
 
@@ -48,11 +48,11 @@ namespace RUDP.Packets
 
 		public Packet Duplicate()
 		{
-			Packet packet = new Packet();
+			Packet packet = PacketFactory.CreatePacket();
 			packet.RemoteEP = this.RemoteEP;
 			packet.type = this.type;
 			packet.reliability = this.reliability;
-			packet.UniqueID = this.UniqueID;
+			packet.Id = this.Id;
 			return packet;
 		}
 
@@ -67,7 +67,7 @@ namespace RUDP.Packets
 		public byte[] GetBytes()
 		{
 			byte relAndType = Utility.PackBytes((byte)reliability, (byte)type);
-			byte[] idBytes = Utility.ToLittleEndian(UniqueID, 8);
+			byte[] idBytes = Utility.ToLittleEndian(Id, 2);
 			byte[] textBytes = Encoding.UTF8.GetBytes(Text);
 			byte[] bytes = Utility.Combine(new byte[] { relAndType }, idBytes, textBytes);
 
@@ -76,34 +76,35 @@ namespace RUDP.Packets
 
 		public static Packet FromText(string text)
 		{
-			Packet packet = PacketFactory.GetPacket();
+			Packet packet = PacketFactory.RecyclePacket();
 			packet.Text = text;
 			return packet;
 		}
 
 		public static Packet FromBytes(byte[] buffer, int c)
 		{
-			Packet packet = PacketFactory.GetPacket();
+			Packet packet = PacketFactory.CreatePacket();
 
 			byte[] bytes = Utility.SubArray(buffer, 0, c);
 			Tuple<byte, byte> tuple = Utility.UnpackBytes(bytes[0]);
 			packet.reliability = (Reliability)tuple.Item1;
 			packet.type = (Type)tuple.Item2;
-			packet.UniqueID = Utility.FromLittleEndianLong(Utility.SubArray(bytes, 1, 8));
-			packet.Text = Encoding.UTF8.GetString(Utility.SubArray(bytes, 9, bytes.Length - 9));
+			packet.Id = Utility.FromLittleEndianShort(Utility.SubArray(bytes, 1, 2));
+			packet.Text = Encoding.UTF8.GetString(Utility.SubArray(bytes, 3, bytes.Length - 3));
 			return packet;
 		}
 
 		public override int GetHashCode()
 		{
-			return UniqueID.GetHashCode();
+			return Id.GetHashCode();
 		}
 
 		public override bool Equals(object obj)
 		{
 			if (obj is Packet)
 			{
-				return UniqueID == ((Packet)obj).UniqueID;
+				Packet other = (Packet)obj;
+				return Id == other.Id && RemoteEP.Equals(other.RemoteEP);
 			}
 
 			return false;

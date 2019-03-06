@@ -70,7 +70,7 @@ namespace RUDP.Internal
 
 			for (int i = 0; i < packets.Count; i += 1)
 			{
-				if (packets[i].UniqueID == packet.UniqueID)
+				if (packets[i].Id == packet.Id)
 				{
 					packets.RemoveAt(i);
 					break;

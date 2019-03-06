@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RUDP.Internal
@@ -29,6 +30,11 @@ namespace RUDP.Internal
 
 		private BoundedList<Packet> latestReceived;
 
+		private BlockingQueue<Packet> pendingOut;
+
+		private Thread sendThread;
+		private bool isRunning;
+
 		public TrafficHandler(ITrafficHandler eventHandler)
 		{
 			this.eventHandler = eventHandler;
@@ -41,10 +47,14 @@ namespace RUDP.Internal
 			packetReceivedCallbacks[Packet.Reliability.Unreliable] = OnUnreliableReceived;
 
 			latestReceived = new BoundedList<Packet>(1024 * 8);
+
+			pendingOut = new BlockingQueue<Packet>();
 		}
 
 		public void Start(IPEndPoint localEP)
 		{
+			isRunning = true;
+
 			this.LocalEP = localEP;
 			Socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
@@ -59,6 +69,9 @@ namespace RUDP.Internal
 			}
 
 			eventHandler.OnBindSuccessful();
+
+			sendThread = new Thread(Run_Send);
+			sendThread.Start();
 
 			reliableMonitor.Start();
 
@@ -75,8 +88,6 @@ namespace RUDP.Internal
 			Packet packet = Packet.FromBytes(buffer, c);
 			packet.RemoteEP = Address.DuplicateEndPoint((IPEndPoint)remoteEP);
 
-			Console.WriteLine(packet.UniqueID);
-
 			Socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref remoteEP, new AsyncCallback(ReceiveCallback), null);
 
 			if (packet != null)
@@ -88,13 +99,11 @@ namespace RUDP.Internal
 
 		private void OnAckReceived(Packet packet)
 		{
-			Console.WriteLine("Ack received: " + packet.UniqueID);
 			reliableMonitor.Remove(packet);
 		}
 
 		private void OnReliableReceived(Packet packet)
 		{
-			Console.WriteLine("Reliable received: " + packet.UniqueID);
 			Packet ack = packet.GetAck();
 			SendInternal(ack);
 
@@ -107,12 +116,21 @@ namespace RUDP.Internal
 
 		private void OnUnreliableReceived(Packet packet)
 		{
-			Console.WriteLine("Unreliable received: " + packet.UniqueID);
 
 			if (latestReceived.Contains(packet) == false)
 			{
 				latestReceived.Add(packet);
 				eventHandler.OnPacketReceived(packet);
+			}
+		}
+
+
+		private void Run_Send()
+		{
+			while (isRunning)
+			{
+				Packet packet = pendingOut.Dequeue();
+				Socket.SendTo(packet.GetBytes(), SocketFlags.None, packet.RemoteEP);
 			}
 		}
 
@@ -126,25 +144,38 @@ namespace RUDP.Internal
 				return;
 			}
 
-			Socket.SendTo(packet.GetBytes(), SocketFlags.None, packet.RemoteEP);
+			pendingOut.Enqueue(packet);
+		}
+
+
+		public void SendReliable(Packet packet, IPEndPoint remoteEP)
+		{
+			packet.RemoteEP = remoteEP;
+			packet.reliability = Packet.Reliability.Reliable;
+			reliableMonitor.Add(packet);
+			SendInternal(packet);
+		}
+
+		public void Send(Packet packet, IPEndPoint remoteEP)
+		{
+			packet.RemoteEP = remoteEP;
+			packet.reliability = Packet.Reliability.Unreliable;
+			SendInternal(packet);
 		}
 
 		public void Send(string text, IPEndPoint remoteEP, bool isReliable = false)
 		{
 			Packet packet = Packet.FromText(text);
-			packet.RemoteEP = remoteEP;
 
 			if (isReliable)
 			{
-				packet.reliability = Packet.Reliability.Reliable;
-				reliableMonitor.Add(packet);
+				SendReliable(packet, remoteEP);
 			}
 			else
 			{
-				packet.reliability = Packet.Reliability.Unreliable;
+				Send(packet, remoteEP);
 			}
 
-			SendInternal(packet);
 		}
 
 	}

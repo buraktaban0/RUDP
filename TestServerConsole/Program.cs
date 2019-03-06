@@ -43,6 +43,21 @@ namespace TestServerConsole
 			Console.WriteLine("Server.OnBindSuccessful");
 		}
 
+		public void OnClientConnected(UDPClientHandler client)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void OnClientDisconnected(UDPClientHandler client)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void OnClientPacketReceived(Packet packet, UDPClientHandler client)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void OnPacketReceived(Packet packet)
 		{
 			Console.WriteLine("Server.OnPacketReceived -> " + packet.Text);

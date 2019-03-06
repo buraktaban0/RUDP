@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Client\IUDPClient.cs" />
     <Compile Include="Client\UDPClient.cs" />
+    <Compile Include="Collections\BlockingQueue.cs" />
     <Compile Include="Collections\BoundedList.cs" />
     <Compile Include="Commons\Address.cs" />
     <Compile Include="Internal\ReliableMonitor.cs" />
@@ -53,7 +54,9 @@
     <Compile Include="Packets\PacketFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\TrafficHandler.cs" />
+    <Compile Include="Server\IUDPClientHandler.cs" />
     <Compile Include="Server\IUDPServer.cs" />
+    <Compile Include="Server\UDPClientHandler.cs" />
     <Compile Include="Server\UDPServer.cs" />
   </ItemGroup>
   <ItemGroup />

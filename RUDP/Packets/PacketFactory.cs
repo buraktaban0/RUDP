@@ -8,11 +8,17 @@ namespace RUDP.Packets
 {
 	public static class PacketFactory
 	{
-		private static ulong currentId = 0;
+		private static ushort currentId = ushort.MaxValue;
 
-		public static Packet GetPacket()
+		public static Packet CreatePacket()
 		{
-			return new Packet() { UniqueID = currentId++, type = Packet.Type.None };
+			return new Packet();
+		}
+
+		public static Packet RecyclePacket()
+		{
+			currentId += 1;
+			return new Packet() { Id = currentId, type = Packet.Type.None };
 		}
 
 	}

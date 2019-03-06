@@ -106,6 +106,18 @@ namespace RUDP.Internal
 			}
 			return result;
 		}
+		public static ushort FromLittleEndianShort(byte[] bytes)
+		{
+			int pos = 0;
+			ushort result = 0;
+			int length = bytes.Length;
+			for (int i = 0; i < length; i += 1)
+			{
+				result = (ushort)(result | (bytes[i] << pos));
+				pos += 8;
+			}
+			return result;
+		}
 
 		/// <summary>
 		/// Convert an unsigned integer value to a byte array, using little endian approach.
@@ -125,6 +137,17 @@ namespace RUDP.Internal
 			return bytes;
 		}
 		public static byte[] ToLittleEndian(ulong val, int len)
+		{
+			byte[] bytes = new byte[len];
+			int pos = 0;
+			for (int i = 0; i < len; i += 1)
+			{
+				bytes[i] = (byte)(val >> pos);
+				pos += 8;
+			}
+			return bytes;
+		}
+		public static byte[] ToLittleEndian(ushort val, int len)
 		{
 			byte[] bytes = new byte[len];
 			int pos = 0;

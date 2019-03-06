@@ -38,10 +38,9 @@ namespace RUDP.Server
 
 		public void Send(string text, IPEndPoint remoteEP)
 		{
-			trafficHandler.Send(text, remoteEP);
+			trafficHandler.Send(text, remoteEP, true);
 		}
-
-
+		
 		public void OnBindFailed(Exception ex)
 		{
 			eventHandler.OnBindFailed(ex);
